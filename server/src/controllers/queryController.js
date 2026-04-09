@@ -1,3 +1,4 @@
+import { buildContext } from "../context/buildContext.js";
 import { scorer } from "../retrieval/scorer.js";
 
 export async function handleQuery(req, res) {
@@ -8,12 +9,13 @@ export async function handleQuery(req, res) {
             return res.status(400).json({ error: "Query is required!"});
         }
 
-        const results = await scorer(query);
+        const { tokens, hasAction, results,  } = await scorer(query);
+
+        const context = buildContext(query, tokens, results, hasAction);
         
         return res.status(200).json({
-            success: true,
-            count: results.length,
-            results
+            status: "debugged_context",
+            context
         })
     } catch (err) {
         console.error("Query Error: ", err);
