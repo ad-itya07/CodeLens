@@ -27,20 +27,20 @@ export async function scorer(query) {
 
             if (dataset.nameTokens.includes(word)) {
                 if (ACTION_WORDS.has(word)) {
-                    matchScore += token.type === "original" ? 7 : 4;
+                    matchScore += token.type === "original" ? 7 : "expanded_synonym" ? 4 : 2;
                     matchedAction = true;
                 } else {
-                    matchScore += token.type === "original" ? 5 : 3;
+                    matchScore += token.type === "original" ? 5 : "expanded_synonym" ? 3 : 1.5;
                 }
                 matchedTokens.add(token.word);
             }
 
             else if (dataset.normalizedNameTokens && dataset.normalizedNameTokens.includes(word)) {
                 if (ACTION_WORDS.has(word)) {
-                    matchScore += token.type === "original" ? 3 : 2;
+                    matchScore += token.type === "original" ? 3 : "expanded_synonym" ? 2 : 1;
                     matchedAction = true;
                 } else {
-                    matchScore += token.type === "original" ? 2 : 1;
+                    matchScore += token.type === "original" ? 2 : "expanded_synonym" ? 1 : 0.5;
                 }
                 matchedTokens.add(token.word);
             }
@@ -121,7 +121,7 @@ export async function scorer(query) {
         const coverage = weightedMatch / totalWeight;
 
         // Finally puting match score
-        if (matchScore > 2.2) {
+        if (matchScore > 2.2 || (isConceptualQuery && matchScore > 1.2)) {
             result.push({dataset: dataset, score: matchScore + coverage * 2, matchedTokens: Array.from(matchedTokens)});
         }
         // console.log(matchScore)

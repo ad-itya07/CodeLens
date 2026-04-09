@@ -1,4 +1,4 @@
-import { ACTION_WORDS, STOP_WORDS, SYNONYM_GROUPS } from "../lib/wordLists.js";
+import { ACTION_WORDS, DOMAIN_SYNONYMS, STOP_WORDS, SYNONYM_GROUPS } from "../lib/wordLists.js";
 import { correctEntity, correctToken } from "../utils/correctTokens.js";
 import { normalizeWord } from "../utils/normalizeWord.js";
 
@@ -19,26 +19,37 @@ function generateStructuredTokens(baseTokens) {
         }));
 }
 
-function expandTokens(tokens) {
-    const expanded = [...tokens];
+export function expandTokens(tokens) {
+  const expanded = [...tokens];
 
-    tokens.forEach(tokenObj => {
-        SYNONYM_GROUPS.forEach(group => {
-        if (group.includes(tokenObj.word)) {
-            group.forEach(word => {
-            // avoid duplicates
-            if (!expanded.some(t => t.word === word)) {
-                expanded.push({
-                word,
-                type: "expanded"
-                });
-            }
-            });
-        }
+  tokens.forEach(tokenObj => {
+    const word = tokenObj.word;
+
+    SYNONYM_GROUPS.forEach(group => {
+      if (group.includes(word)) {
+        group.forEach(w => {
+          if (!expanded.some(t => t.word === w)) {
+            expanded.push({ word: w, type: "expanded_synonym" });
+          }
         });
+      }
     });
 
-    return expanded;
+    DOMAIN_SYNONYMS.forEach(Group => {
+        if (Group.includes(word)) {
+            Group.forEach(w => {
+                if (!expanded.some(t => t.word === w)) {
+                    expanded.push({
+                        word: w,
+                        type: "expanded_domain"
+                    })
+                }
+            })
+        }
+    })
+  });
+
+  return expanded;
 }
 
 export function generateNonActionTokens(tokens) {

@@ -72,3 +72,15 @@ export const CONCEPTUAL_WORDS = new Set([
   "basically", "actually", "simply", "detail", "deep", "highlevel",
   "lowlevel"
 ]);
+
+export const DOMAIN_SYNONYMS = [
+  ["auth", "authentication", "authorization", "login", "signup", "jwt", "token", "session"],
+  ["payment", "billing", "transaction", "invoice", "checkout", "order"],
+  ["message", "chat", "conversation", "send", "receive"],
+  ["user", "account", "profile"],
+  ["file", "upload", "image", "storage"],
+  ["socket", "realtime", "ws", "websocket"],
+  ["database", "db", "mongo", "sql", "query"],
+  ["api", "endpoint", "route", "controller"],
+  ["config", "setup", "initialize", "init"],
+];
