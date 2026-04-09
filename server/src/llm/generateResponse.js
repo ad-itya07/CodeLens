@@ -9,7 +9,7 @@ export async function generateResponse(context) {
   try {
     const prompt = buildPrompt(context);
 
-    const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
+    const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite-preview" });
 
 
     const result = await model.generateContent(prompt);
