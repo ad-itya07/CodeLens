@@ -19,7 +19,7 @@ export async function handleQuery(req, res) {
         const context = buildContext(query, tokens, results, hasAction);
         if (!context.candidates || context.candidates.length === 0 && isVagueQuery(query)) {
             return res.status(200).json({
-                explaination: "Query is too vague. Showing overall project overview.",
+                explanation: "Query is too vague. Showing overall project overview.",
                 fallback: true,
             });
         }
