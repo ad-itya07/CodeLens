@@ -20,6 +20,7 @@ export async function scorer(query) {
         // console.log(dataset.nameTokens)
 
         // MAIN matching and check if action words matched or not
+        let matchedTokens = new Set();
         let matchedAction = false;
         tokens.forEach(token => {
             let word = token.word;
@@ -31,6 +32,7 @@ export async function scorer(query) {
                 } else {
                     matchScore += token.type === "original" ? 5 : 3;
                 }
+                matchedTokens.add(token.word);
             }
 
             else if (dataset.normalizedNameTokens && dataset.normalizedNameTokens.includes(word)) {
@@ -40,6 +42,7 @@ export async function scorer(query) {
                 } else {
                     matchScore += token.type === "original" ? 2 : 1;
                 }
+                matchedTokens.add(token.word);
             }
 
             else {
@@ -53,9 +56,14 @@ export async function scorer(query) {
                 
                 if (bestSimilarity > 0.8) matchScore += 0.9;
                 else if (bestSimilarity > 0.6) matchScore += 0.4;
+
+                if (bestSimilarity > 0.6) matchedTokens.add(token.word);
             }
 
-            if (dataset.fileTokens.includes(word)) matchScore+=1;
+            if (dataset.fileTokens.includes(word)) {
+                matchScore+=1;
+                matchedTokens.add(token.word);
+            }
             if (dataset.code.toLowerCase().includes(word)) {
                 matchScore+=0.1;
                 if (dataset.type === "documentation" || dataset.type === "metadata") matchScore+=2.3;
@@ -114,7 +122,7 @@ export async function scorer(query) {
 
         // Finally puting match score
         if (matchScore > 2.2) {
-            result.push({dataset: dataset, score: matchScore + coverage * 2});
+            result.push({dataset: dataset, score: matchScore + coverage * 2, matchedTokens: Array.from(matchedTokens)});
         }
         // console.log(matchScore)
     })
@@ -125,5 +133,5 @@ export async function scorer(query) {
 
     const finalResults = filteredResults.slice(0, 5);
 
-    return finalResults;
+    return { tokens, hasAction, results: finalResults};
 }
