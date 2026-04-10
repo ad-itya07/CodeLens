@@ -1,43 +1,62 @@
+import { search } from "../retrieval/search.js";
+import { getDatabase } from "../db/database.js";
 import { buildContext } from "../context/buildContext.js";
 import { generateResponse } from "../llm/generateResponse.js";
-import { scorer } from "../retrieval/scorer.js";
 
 function isVagueQuery(query) {
-    return query.split(" ").length <= 3;
+  return query.split(" ").length <= 3;
 }
 
 export async function handleQuery(req, res) {
-    try {
-        const { query } = req.body;
+  try {
+    const { query } = req.body;
 
-        if (!query) {
-            return res.status(400).json({ error: "Query is required!"});
-        }
-
-        const { tokens, hasAction, results,  } = await scorer(query);
-
-        const context = buildContext(query, tokens, results, hasAction);
-        if (!context.candidates || context.candidates.length === 0 && isVagueQuery(query)) {
-            return res.status(200).json({
-                explanation: "Query is too vague. Showing overall project overview.",
-                fallback: true,
-            });
-        }
-
-        const llmResponse = await generateResponse(context);
-
-        if (!llmResponse || !llmResponse.status) {
-            return res.json({
-                status: "error",
-                explanation: "LLM failed to return valid response"
-            });
-        }
-
-        if (llmResponse.status === "llm_error") return res.json(llmResponse);
-        
-        return res.status(200).json(llmResponse);
-    } catch (err) {
-        console.error("Query Error: ", err);
-        return res.status(500).json({ error: "Internal Server Error"});
+    if (!query) {
+      return res.status(400).json({ error: "Query is required!" });
     }
+
+    const DATABASE = getDatabase();
+
+    if (!DATABASE || DATABASE.length === 0) {
+      return res.status(500).json({ error: "Database not initialized" });
+    }
+
+    const results = await search(query, DATABASE, 5);
+
+    if (results.length === 0 && isVagueQuery(query)) {
+      return res.status(200).json({
+        message: "Query too vague, no strong matches found",
+        results: [],
+      });
+    }
+
+    const {contextText , uiResults} = buildContext(query, results);
+
+    const llmResponse = await generateResponse(query, contextText);
+
+    if (!llmResponse || !llmResponse.answer) {
+        return res.json({
+            status: "error",
+            explanation: "LLM failed to return valid response"
+        });
+    }
+
+    if (llmResponse.status === "insufficient_context") {
+        return res.status(200).json({
+            answer: llmResponse.answer,
+            codeResults: uiResults,
+            fallback: true
+        })
+    }
+    if (llmResponse.status === "llm_error") return res.status(500).json(llmResponse.answer);
+
+    return res.status(200).json({
+      answer: llmResponse.answer,
+      codeResults: uiResults,
+    });
+
+  } catch (err) {
+    console.error("Query Error: ", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
 }
