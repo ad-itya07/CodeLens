@@ -1,63 +1,38 @@
-import { classifyIntent } from "./classifyIntent.js";
-import { extractSnippets } from "./extractSnippets.js";
-import { generateReason } from "./generateReason.js";
-
-function filterCandidates(results) {
-  return results
-    .filter(r => r.score > 2.2)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 3);
-}
-
-function roundScore(score) {
-  return Math.round(score * 100) / 100;
-}
-
-export function buildContext(query, tokens, results, hasAction) {
+export function buildContext(query, results) {
   if (!results || results.length === 0) {
     return {
-      query,
-      intent: "unknown",
-      tokens,
-      candidates: []
+      contextText: "",
+      uiResults: [],
     };
   }
 
-  const filtered = filterCandidates(results);
+  const topResults = results.slice(0, 5);
 
-  const intent = classifyIntent(tokens, hasAction);
+  //  LLM COntext
+  const contextText = `
+    User Query:
+    ${query}
 
-  const candidates = filtered.map((r) => {
-    const dataset = r.dataset;
+    Relevant Code Snippets:
+    ${topResults.map((e, i) => `
+    [${i + 1}] ${e.name} (${e.type})
+    File: ${e.filePath}
 
-    return {
-      file: dataset.filePath,
-      type: dataset.type,
-      score: roundScore(r.score),
+    ${e.code.slice(0, 1000)}
+    `).join("\n")}
+    `;
 
-      reason: generateReason(dataset, r.matchedTokens),
-
-      snippets: extractSnippets(
-        dataset,
-        tokens,
-        r.matchedTokens
-      )
-    };
-  });
-
-  if (candidates.length === 0) {
-    return {
-      query,
-      intent,
-      tokens,
-      candidates: []
-    };
-  }
+  // UI results
+  const uiResults = topResults.map(e => ({
+    name: e.name,
+    type: e.type,
+    filePath: e.filePath,
+    code: e.code,
+    score: Number(e.score?.toFixed(3))
+  }));
 
   return {
-    query,
-    intent,
-    tokens: tokens.map(t => t.word), 
-    candidates
+    contextText,
+    uiResults,
   };
 }
