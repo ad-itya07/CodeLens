@@ -3,6 +3,16 @@ import fs from "fs";
 import { cloneRepo } from "../utils/gitClone.js";
 import { setDatabase } from "../db/database.js";
 import { parseRepo } from "../parser/parser.js";
+import { embed } from '../embeddings/embedder.js';
+
+async function indexEntries(entries) {
+  for (const entry of entries) {
+    if (!entry.embeddingText) continue;
+
+    const vector = await embed(entry.embeddingText);
+    entry.embedding = vector;
+  }
+}
 
 export async function handleRepo(req, res) {
     const { githubUrl } = req.body;
@@ -29,6 +39,8 @@ export async function handleRepo(req, res) {
         if (!DATABASE || DATABASE.length == 0) {
             throw new Error("Parsing failed or empty dataset!");
         }
+
+        await indexEntries(DATABASE);
 
         setDatabase(DATABASE);
 

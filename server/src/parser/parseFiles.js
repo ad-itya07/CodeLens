@@ -16,15 +16,26 @@ export function parseFiles(files) {
       try {
         const content = fs.readFileSync(filePath, "utf-8");
 
-        DATABASE.push({
-          name: path.basename(filePath),
-          type: "documentation",
-          filePath,
-          nameTokens: filePath.toLowerCase().split(/\W+/),
-          normalizedNameToken: [],
-          fileTokens: filePath.toLowerCase().split(/\W+/),
-          code: content.slice(0, 5000),
-        });
+      DATABASE.push({
+        name: path.basename(filePath),
+        type: "documentation",
+        filePath,
+        code: content.slice(0, 5000),
+
+        nameTokens: filePath.toLowerCase().split(/\W+/),
+        normalizedNameTokens: [],
+        fileTokens: filePath.toLowerCase().split(/\W+/),
+
+        embeddingText: `
+      Name: ${path.basename(filePath)}
+      Type: documentation
+      File: ${filePath}
+
+      Content:
+      ${content.slice(0, 1500)}
+      `,
+        embedding: null,
+      });
       } catch (err) {
         console.log("🚩 Skipping .md file: ", filePath);
       }
@@ -37,13 +48,24 @@ export function parseFiles(files) {
         const content = fs.readFileSync(filePath, "utf-8");
 
         DATABASE.push({
-            name: "package.json",
-            type: "metadata",
-            filePath,
-            nameTokens: ["package", "json", "dependencies"],
-            normalizedNameToken: [],
-            fileTokens: ["package", "json"],
-            code: content
+          name: "package.json",
+          type: "metadata",
+          filePath,
+          code: content,
+
+          nameTokens: ["package", "json", "dependencies"],
+          normalizedNameTokens: [],
+          fileTokens: ["package", "json"],
+
+          embeddingText: `
+        Name: package.json
+        Type: metadata
+        File: ${filePath}
+
+        Content:
+        ${content.slice(0, 1500)}
+        `,
+          embedding: null,
         });
       } catch (Err) {
           console.log("🚩 Skipping .json file: ", filePath);
