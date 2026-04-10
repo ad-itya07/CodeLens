@@ -1,55 +1,43 @@
-import { compressContext } from "../utils/context/compressContext.js";
-
-const intentInstruction = {
-  flow_explanation: `
-- Provide step-by-step execution flow
-- Focus on sequence of operations
-`,
-  conceptual: `
-- Provide high-level explanation
-- Focus on purpose and architecture
-`,
-  unknown: `
-- Provide best possible explanation using context
-`
-};
-
-export function buildPrompt(context) {
-  const compact = compressContext(context);
-
+export function buildPrompt({ query, contextText }) {
   return `
-You are a strict codebase analyzer.
+You are a senior software engineer analyzing a real codebase.
 
-Task:
-${intentInstruction[context.intent]}
+Your task:
+Explain how the system works based ONLY on the provided context.
 
-Rules:
-- Use ONLY the provided context
-- Do NOT assume missing logic
-- If unclear → return "insufficient_context"
+STYLE RULES (VERY IMPORTANT):
 
-IMPORTANT:
-- Return ONLY valid JSON
-- Do NOT include explanations outside JSON
-- Do NOT include markdown or text before/after JSON
--If the context only partially answers the query:
-  - provide partial explanation
-  - but clearly state limitations
+- Be concise and high-signal
+- Do NOT explain general concepts until the query is asking for it
+- Focus ONLY on how THIS codebase implements the feature
+- Avoid phrases like:
+  - "In general"
+  - "This system uses"
+  - "As a senior engineer"
+- No storytelling, no teaching tone
 
-Format:
+- Write like internal engineering notes:
+  → direct
+  → specific
+
+OUTPUT FORMAT (STRICT JSON):
 {
-  "status": "ok | insufficient_context",
-  "explanation": "...",
-  "steps": [],
-  "code_references": [
-    {
-      "file": "...",
-      "snippet": "..."
-    }
-  ]
+  "status": "ok | partial",
+  "answer": "Detailed explanation grounded in code"
 }
 
-Context:
-${JSON.stringify(compact)}
+---
+
+USER QUERY:
+${query}
+
+---
+
+CODEBASE CONTEXT:
+${contextText}
+
+---
+
+Now analyze and respond.
 `;
 }
