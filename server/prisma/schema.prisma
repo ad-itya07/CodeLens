@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  extensions = [vector]
+}
+
+model User {
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  password  String
+  createdAt DateTime  @default(now())
+  projects  Project[]
+}
+
+model Project {
+  id        String        @id @default(uuid())
+  userId    String
+  repoUrl   String
+  status    ProjectStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  entries   Entry[]
+  user      User          @relation(fields: [userId], references: [id])
+}
+
+model Entry {
+  id            String                 @id @default(uuid())
+  projectId     String
+  name          String
+  nameTokens    String[]
+  normalizedNameTokens String[]
+  fileTokens    String[]
+  type          String
+  filePath      String
+  code          String
+  embeddingText String
+  embedding     Unsupported("vector")?
+  meta          Json?
+  createdAt     DateTime               @default(now())
+  project       Project                @relation(fields: [projectId], references: [id])
+}
+
+enum ProjectStatus {
+  PENDING
+  PARSING
+  EMBEDDING
+  READY
+  FAILED
+}
