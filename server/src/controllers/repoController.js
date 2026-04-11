@@ -1,9 +1,6 @@
-import path from "path";
-import fs from "fs";
-import { cloneRepo } from "../utils/gitClone.js";
-import { setDatabase } from "../db/database.js";
-import { parseRepo } from "../parser/parser.js";
 import { embed } from '../embeddings/embedder.js';
+import { repoQueue } from "../queue/index.js";
+import { prisma } from "../lib/prisma.js";
 
 async function indexEntries(entries) {
   for (const entry of entries) {
@@ -15,54 +12,45 @@ async function indexEntries(entries) {
 }
 
 export async function handleRepo(req, res) {
-    const { githubUrl } = req.body;
+    const { githubUrl, userId } = req.body;
 
-    if (!githubUrl) {
-        res.status(400).json({ message: "Github URL is required!" });
+    if (!githubUrl || !userId) {
+        return res.status(400).json({ message: "Github URL is required!" });
     }
 
-    const repoName = `repo-${Date.now()}`
-    const repoPath = path.join("repos", repoName);
-
-    let DATABASE = null;
-    let success = false;
-
     try {
-        if (!fs.existsSync("repos")) {
-            fs.mkdirSync("repos");
-        }
-
-        await cloneRepo(githubUrl, repoPath);
-
-        DATABASE = parseRepo(repoPath);
-
-        if (!DATABASE || DATABASE.length == 0) {
-            throw new Error("Parsing failed or empty dataset!");
-        }
-
-        await indexEntries(DATABASE);
-
-        setDatabase(DATABASE);
-
-        success = true;
-
-        return res.status(200).json({
-            success: true,
-            message: "Repo processed successfully!",
-            entries: DATABASE.length,
+        const user = await prisma.user.findUniqueOrThrow({
+            where: {
+                id: userId,
+            }
         });
 
-    } catch (err) {
-        console.error("Error parsing the repo!", err)
-        res.status(500).json({ success: false, message: "Internal Server Error"});
-    } finally {
-        try {
-            if (fs.existsSync(repoPath)) {
-                // delete repo after parsing
-                fs.rmSync(repoPath, { recursive: true, force: true});
-            } 
-        } catch (cleanupErr) {
-            console.error("🚩 Clean up failed: ", cleanupErr);
+        if (!user) {
+            return res.status(404).json({ message: "User not found!" });
         }
+        const project = await prisma.project.create({
+            data: {
+                userId,
+                repoUrl: githubUrl,
+                status: "PENDING",
+            },
+        });
+
+        await repoQueue.add("process-repo", {
+            projectId: project.id,
+            githubUrl,
+        });
+        return res.status(200).json({
+            success: true,
+            message: "Repo queued for processing",
+            projectId: project.id,
+        });
+    } catch (err) {
+        console.error("Prisma Error in handleRepo:", err);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error!",
+            error: err
+        });
     }
 }
