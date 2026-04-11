@@ -1,17 +1,8 @@
-import { embed } from '../embeddings/embedder.js';
 import { repoQueue } from "../queue/index.js";
 import { prisma } from "../lib/prisma.js";
 
-async function indexEntries(entries) {
-  for (const entry of entries) {
-    if (!entry.embeddingText) continue;
-
-    const vector = await embed(entry.embeddingText);
-    entry.embedding = vector;
-  }
-}
-
 export async function handleRepo(req, res) {
+    // TODO: After auth, req.userId will give userId
     const { githubUrl, userId } = req.body;
 
     if (!githubUrl || !userId) {
