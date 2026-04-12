@@ -15,10 +15,8 @@ export async function handleQuery(req, res) {
       return res.status(400).json({ error: "Query and projectId are required!" });
     }
 
-    // TODO: Handle this after auth
-    // const userId = req.userId;
-    const userId = "1";
-    
+    const userId = req.user.id;
+
     const project = await getProject({ userId, projectId });
 
     const DATABASE = project.entries;
@@ -36,24 +34,24 @@ export async function handleQuery(req, res) {
       });
     }
 
-    const {contextText , uiResults} = buildContext(query, results);
+    const {contextText, uiResults } = buildContext(query, results);
 
     const llmResponse = await generateResponse(query, contextText);
     // const llmResponse = { answer: "Yes", status: "ok"};
 
     if (!llmResponse || !llmResponse.answer) {
-        return res.json({
-            status: "error",
-            explanation: "LLM failed to return valid response"
-        });
+      return res.json({
+        status: "error",
+        explanation: "LLM failed to return valid response"
+      });
     }
 
     if (llmResponse.status === "insufficient_context") {
-        return res.status(200).json({
-            answer: llmResponse.answer,
-            codeResults: uiResults,
-            fallback: true
-        })
+      return res.status(200).json({
+        answer: llmResponse.answer,
+        codeResults: uiResults,
+        fallback: true
+      })
     }
     if (llmResponse.status === "llm_error") return res.status(500).json(llmResponse.answer);
 
@@ -64,19 +62,19 @@ export async function handleQuery(req, res) {
 
   } catch (err) {
     console.error("Query Error: ", err);
-    return res.status(500).json({ message: "Internal Server Error", err: {
-      message: err.message,
-      code: err.code,
-      stack: err.stack,
-    } });
+    return res.status(500).json({
+      message: "Internal Server Error", err: {
+        message: err.message,
+        code: err.code,
+        stack: err.stack,
+      }
+    });
   }
 }
 
 export async function saveQuery(req, res) {
   const { projectId, query, answer, codeResults } = req.body;
-  // const { userId } = req.userId;
-
-  const userId = "1";
+  const userId = req.user.id;
   try {
     const question = await saveQuestion({ userId, projectId, query, answer, codeResults });
     return res.status(200).json({
@@ -94,8 +92,7 @@ export async function saveQuery(req, res) {
 }
 
 export async function getQueries(req, res) {
-  // const { userId } = req.userId;
-  const userId = "1";
+  const userId = req.user.id;
 
   try {
     const questions = await getQuestions({ userId });

@@ -35,6 +35,8 @@ const worker = new Worker(
         throw new Error("Parsing failed or empty dataset!");
       }
 
+      console.log("Updating Entries in DB...");
+
       for (const entry of entries) {
         await prisma.entry.create({
           data: {
@@ -84,6 +86,7 @@ const worker = new Worker(
         `;
       }
 
+      console.log("Repo parsing done successfully!");
       await prisma.project.update({
         where: { id: projectId },
         data: { status: "READY" },

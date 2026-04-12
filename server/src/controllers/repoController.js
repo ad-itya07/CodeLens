@@ -4,8 +4,8 @@ import { getOneProject, getUserProjects } from "../db/database.js";
 import { withRetry } from "../db/retryFunction.js";
 
 export async function handleRepo(req, res) {
-    // TODO: After auth, req.userId will give userId
-    const { githubUrl, userId } = req.body;
+    const { githubUrl } = req.body;
+    const userId = req.user.id;
 
     if (!githubUrl || !userId) {
         return res.status(400).json({ message: "Github URL is required!" });
@@ -56,8 +56,7 @@ export async function handleRepo(req, res) {
 }
 
 export async function getUserRepos(req, res) {
-    // const { userId } = req.userId; 
-    const userId = "1";
+    const userId = req.user.id;
     try {
         const projects = await getUserProjects({ userId });
         return res.status(200).json({
