@@ -1,5 +1,5 @@
 import { search } from "../retrieval/search.js";
-import { getDatabase } from "../db/database.js";
+import { getProject } from "../db/database.js";
 import { buildContext } from "../context/buildContext.js";
 import { generateResponse } from "../llm/generateResponse.js";
 
@@ -9,13 +9,19 @@ function isVagueQuery(query) {
 
 export async function handleQuery(req, res) {
   try {
-    const { query } = req.body;
+    const { projectId, query } = req.body;
 
-    if (!query) {
-      return res.status(400).json({ error: "Query is required!" });
+    if (!query || !projectId) {
+      return res.status(400).json({ error: "Query and projectId are required!" });
     }
 
-    const DATABASE = getDatabase();
+    // TODO: Handle this after auth
+    // const userId = req.userId;
+    const userId = "1";
+    
+    const project = await getProject({ userId, projectId });
+
+    const DATABASE = project.entries;
 
     if (!DATABASE || DATABASE.length === 0) {
       return res.status(500).json({ error: "Database not initialized" });
@@ -33,6 +39,7 @@ export async function handleQuery(req, res) {
     const {contextText , uiResults} = buildContext(query, results);
 
     const llmResponse = await generateResponse(query, contextText);
+    // const llmResponse = { answer: "Yes", status: "ok"};
 
     if (!llmResponse || !llmResponse.answer) {
         return res.json({
@@ -57,6 +64,10 @@ export async function handleQuery(req, res) {
 
   } catch (err) {
     console.error("Query Error: ", err);
-    return res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ message: "Internal Server Error", err: {
+      message: err.message,
+      code: err.code,
+      stack: err.stack,
+    } });
   }
 }
