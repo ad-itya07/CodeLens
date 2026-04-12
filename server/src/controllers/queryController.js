@@ -1,5 +1,5 @@
 import { search } from "../retrieval/search.js";
-import { getProject } from "../db/database.js";
+import { getProject, getQuestions, saveQuestion } from "../db/database.js";
 import { buildContext } from "../context/buildContext.js";
 import { generateResponse } from "../llm/generateResponse.js";
 
@@ -69,5 +69,46 @@ export async function handleQuery(req, res) {
       code: err.code,
       stack: err.stack,
     } });
+  }
+}
+
+export async function saveQuery(req, res) {
+  const { projectId, query, answer, codeResults } = req.body;
+  // const { userId } = req.userId;
+
+  const userId = "1";
+  try {
+    const question = await saveQuestion({ userId, projectId, query, answer, codeResults });
+    return res.status(200).json({
+      success: true,
+      question,
+    });
+  } catch (err) {
+    console.error("Prisma Error in saveQuery:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error!",
+      error: err
+    });
+  }
+}
+
+export async function getQueries(req, res) {
+  // const { userId } = req.userId;
+  const userId = "1";
+
+  try {
+    const questions = await getQuestions({ userId });
+    return res.status(200).json({
+      success: true,
+      questions,
+    });
+  } catch (err) {
+    console.error("Prisma Error in getQueries:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error!",
+      error: err
+    });
   }
 }
