@@ -1,68 +1,93 @@
-import path from "path";
-import fs from "fs";
-import { cloneRepo } from "../utils/gitClone.js";
-import { setDatabase } from "../db/database.js";
-import { parseRepo } from "../parser/parser.js";
-import { embed } from '../embeddings/embedder.js';
-
-async function indexEntries(entries) {
-  for (const entry of entries) {
-    if (!entry.embeddingText) continue;
-
-    const vector = await embed(entry.embeddingText);
-    entry.embedding = vector;
-  }
-}
+import { repoQueue } from "../queue/index.js";
+import { prisma } from "../lib/prisma.js";
+import { getOneProject, getUserProjects } from "../db/database.js";
+import { withRetry } from "../db/retryFunction.js";
 
 export async function handleRepo(req, res) {
-    const { githubUrl } = req.body;
+    // TODO: After auth, req.userId will give userId
+    const { githubUrl, userId } = req.body;
 
-    if (!githubUrl) {
-        res.status(400).json({ message: "Github URL is required!" });
+    if (!githubUrl || !userId) {
+        return res.status(400).json({ message: "Github URL is required!" });
     }
 
-    const repoName = `repo-${Date.now()}`
-    const repoPath = path.join("repos", repoName);
-
-    let DATABASE = null;
-    let success = false;
-
     try {
-        if (!fs.existsSync("repos")) {
-            fs.mkdirSync("repos");
+        let user;
+        await withRetry(async () => {
+            user = await prisma.user.findUnique({
+                where: {
+                    id: userId,
+                }
+            });
+        })
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found!" });
         }
 
-        await cloneRepo(githubUrl, repoPath);
+        let project;
+        await withRetry(async () => {
+            project = await prisma.project.create({
+                data: {
+                    userId,
+                    repoUrl: githubUrl,
+                    status: "PENDING",
+                },
+            });
+        })
 
-        DATABASE = parseRepo(repoPath);
-
-        if (!DATABASE || DATABASE.length == 0) {
-            throw new Error("Parsing failed or empty dataset!");
-        }
-
-        await indexEntries(DATABASE);
-
-        setDatabase(DATABASE);
-
-        success = true;
-
+        await repoQueue.add("process-repo", {
+            projectId: project.id,
+            githubUrl,
+        });
         return res.status(200).json({
             success: true,
-            message: "Repo processed successfully!",
-            entries: DATABASE.length,
+            message: "Repo queued for processing",
+            projectId: project.id,
         });
-
     } catch (err) {
-        console.error("Error parsing the repo!", err)
-        res.status(500).json({ success: false, message: "Internal Server Error"});
-    } finally {
-        try {
-            if (fs.existsSync(repoPath)) {
-                // delete repo after parsing
-                fs.rmSync(repoPath, { recursive: true, force: true});
-            } 
-        } catch (cleanupErr) {
-            console.error("🚩 Clean up failed: ", cleanupErr);
-        }
+        console.error("Prisma Error in handleRepo:", err);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error!",
+            error: err
+        });
+    }
+}
+
+export async function getUserRepos(req, res) {
+    // const { userId } = req.userId; 
+    const userId = "1";
+    try {
+        const projects = await getUserProjects({ userId });
+        return res.status(200).json({
+            success: true,
+            projects,
+        });
+    } catch (err) {
+        console.error("Prisma Error in getUserRepos:", err);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error!",
+            error: err
+        });
+    }
+}
+
+export async function getRepoStatus(req, res) {
+    const { id } = req.params;
+    try {
+        const project = await getOneProject({ id });
+        return res.status(200).json({
+            success: true,
+            project,
+        });
+    } catch (err) {
+        console.error("Prisma Error in getRepoStatus:", err);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error!",
+            error: err
+        });
     }
 }

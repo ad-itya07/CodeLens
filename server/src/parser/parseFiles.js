@@ -152,17 +152,17 @@ export function parseFiles(files) {
           const node = element.declaration;
 
           if (!node) {
-            if (element.source) {
-              const names = element.specifiers.map((s) => s.exported.name);
+            // ---> SKIP THIS FOR NOW
+            // if (element.source) {
+            //   const names = element.specifiers.map((s) => s.exported.name);
 
-              // TODO: YOU MANUALLY PUSH IT HERE OR MODIFY THE ADD-ENTRY FUNC WHEN DB IS CONFIGED
-              DATABASE.push({
-                type: "re-export",
-                names,
-                source: element.source.value,
-                filePath,
-              });
-            }
+            //   DATABASE.push({
+            //     type: "re-export",
+            //     names,
+            //     source: element.source.value,
+            //     filePath,
+            //   });
+            // }
             return;
           }
 
