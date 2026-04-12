@@ -1,5 +1,7 @@
 import { repoQueue } from "../queue/index.js";
 import { prisma } from "../lib/prisma.js";
+import { getUserProjects } from "../db/database.js";
+import { withRetry } from "../db/retryFunction.js";
 
 export async function handleRepo(req, res) {
     // TODO: After auth, req.userId will give userId
@@ -10,22 +12,29 @@ export async function handleRepo(req, res) {
     }
 
     try {
-        const user = await prisma.user.findUniqueOrThrow({
-            where: {
-                id: userId,
-            }
-        });
+        let user;
+        await withRetry(async () => {
+            user = await prisma.user.findUnique({
+                where: {
+                    id: userId,
+                }
+            });
+        })
 
         if (!user) {
             return res.status(404).json({ message: "User not found!" });
         }
-        const project = await prisma.project.create({
-            data: {
-                userId,
-                repoUrl: githubUrl,
-                status: "PENDING",
-            },
-        });
+
+        let project;
+        await withRetry(async () => {
+            project = await prisma.project.create({
+                data: {
+                    userId,
+                    repoUrl: githubUrl,
+                    status: "PENDING",
+                },
+            });
+        })
 
         await repoQueue.add("process-repo", {
             projectId: project.id,
@@ -38,6 +47,25 @@ export async function handleRepo(req, res) {
         });
     } catch (err) {
         console.error("Prisma Error in handleRepo:", err);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error!",
+            error: err
+        });
+    }
+}
+
+export async function getUserRepos(req, res) {
+    // const { userId } = req.userId; 
+    const userId = "1";
+    try {
+        const projects = await getUserProjects({ userId });
+        return res.status(200).json({
+            success: true,
+            projects,
+        });
+    } catch (err) {
+        console.error("Prisma Error in getUserRepos:", err);
         return res.status(500).json({
             success: false,
             message: "Internal Server Error!",
