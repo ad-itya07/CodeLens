@@ -105,6 +105,9 @@ const worker = new Worker(
   },
   {
     connection: redis,
+    stalledInterval: 60000,
+    lockDuration: 120000,
+    lockRenewTime: 60000,
   },
 );
 
