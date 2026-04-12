@@ -1,6 +1,6 @@
 import { repoQueue } from "../queue/index.js";
 import { prisma } from "../lib/prisma.js";
-import { getUserProjects } from "../db/database.js";
+import { getOneProject, getUserProjects } from "../db/database.js";
 import { withRetry } from "../db/retryFunction.js";
 
 export async function handleRepo(req, res) {
@@ -66,6 +66,24 @@ export async function getUserRepos(req, res) {
         });
     } catch (err) {
         console.error("Prisma Error in getUserRepos:", err);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error!",
+            error: err
+        });
+    }
+}
+
+export async function getRepoStatus(req, res) {
+    const { id } = req.params;
+    try {
+        const project = await getOneProject({ id });
+        return res.status(200).json({
+            success: true,
+            project,
+        });
+    } catch (err) {
+        console.error("Prisma Error in getRepoStatus:", err);
         return res.status(500).json({
             success: false,
             message: "Internal Server Error!",
