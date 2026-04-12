@@ -1,8 +1,9 @@
 import express from "express";
-import { handleQuery, saveQuery, getQueries, getProjectQuestions } from "../controllers/queryController.js";
+import { handleQuery, saveQuery, getQueries } from "../controllers/queryController.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
 export const router = express.Router();
 
-router.post("/", handleQuery);
-router.post("/save", saveQuery);
-router.get("/", getQueries);
+router.post("/", authMiddleware, handleQuery);
+router.post("/save", authMiddleware, saveQuery);
+router.get("/", authMiddleware, getQueries);
