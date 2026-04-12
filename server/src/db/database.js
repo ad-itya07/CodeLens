@@ -1,5 +1,5 @@
-import { prisma } from "../lib/prisma";
-import { withRetry } from "./retryFunction";
+import { prisma } from "../lib/prisma.js";
+import { withRetry } from "./retryFunction.js";
 
 export async function getProject({ userId, projectId }) {
     return withRetry(async () => {
