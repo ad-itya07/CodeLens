@@ -40,3 +40,38 @@ export async function getUserProjects({ userId }) {
         return projects;
     })
 }
+
+export async function getOneProject({ id }) {
+    return withRetry(async () => {
+        const project = await prisma.project.findUnique({
+            where: { id },
+        });
+        return project;
+    })
+}
+
+export async function saveQuestion({ userId, projectId, query, answer, codeResults }) {
+    return withRetry(async () => {
+        const question = await prisma.question.create({
+            data: {
+                userId,
+                projectId,
+                query,
+                answer,
+                codeResults,
+            },
+        });
+        return question;
+    })
+}
+
+export async function getQuestions({ userId }) {
+    return withRetry(async () => {
+        const questions = await prisma.question.findMany({
+            where: {
+                userId,
+            },
+        });
+        return questions;
+    })
+}
