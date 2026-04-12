@@ -21,6 +21,7 @@ model User {
   password  String
   createdAt DateTime  @default(now())
   projects  Project[]
+  questions Question[]
 }
 
 model Project {
@@ -31,7 +32,31 @@ model Project {
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
   entries   Entry[]
-  user      User          @relation(fields: [userId], references: [id])
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  questions Question[]
+
+  @@index([userId])
+}
+
+model Question {
+  id          String   @id @default(uuid())
+  userId      String
+  projectId   String
+
+  query       String
+  answer      String
+  codeResults Json[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([projectId])
+  @@index([createdAt])
 }
 
 model Entry {
