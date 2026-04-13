@@ -36,6 +36,9 @@ export async function getUserProjects({ userId }) {
             where: {
                 userId,
             },
+            include: {
+                entries: true,
+            }
         });
         return projects;
     })
