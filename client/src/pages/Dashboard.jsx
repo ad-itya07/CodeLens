@@ -29,7 +29,7 @@ const Dashboard = () => {
         }
     };
 
-    const numEntries = repos.reduce((acc, repo) => acc + repo.entries.length, 0);
+    const numEntries = repos.reduce((acc, repo) => acc + (repo.entries?.length || 0), 0);
     return (
         <div className="p-8 max-w-7xl mx-auto w-full space-y-8 overflow-y-auto h-full custom-scrollbar">
             <div className="flex justify-between items-end">
