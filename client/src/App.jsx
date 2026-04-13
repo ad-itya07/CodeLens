@@ -10,6 +10,15 @@ import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import ProjectChat from './pages/ProjectChat';
 import HowItWorks from './pages/HowItWorks';
+import ProtectedRoute from './components/ProtectedRoute';
+import { useAuth } from './context/AuthContext';
+
+const AuthRedirect = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (user) return <Navigate to="/dashboard" replace />;
+  return children;
+};
 
 function App() {
   return (
@@ -25,10 +34,14 @@ function App() {
           }} />
           <Routes>
             <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/login" element={<AuthRedirect><LoginPage /></AuthRedirect>} />
+            <Route path="/register" element={<AuthRedirect><RegisterPage /></AuthRedirect>} />
 
-            <Route element={<DashboardLayout />}>
+            <Route element={
+              <ProtectedRoute>
+                <DashboardLayout />
+              </ProtectedRoute>
+            }>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/chat/:id" element={<ProjectChat />} />
               <Route path="/how-it-works" element={<HowItWorks />} />
