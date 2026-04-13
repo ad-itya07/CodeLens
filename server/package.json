@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "npm install && npx prisma generate",
     "dev": "nodemon --import tsx/esm ./src/server.js",
     "start": "node --import tsx/esm ./src/server.js",
     "worker": "node --import tsx/esm ./src/queue/worker.js"
