@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Navigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, MessageSquare, LogOut, Github, PlusCircle, Search } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, LogOut, Github, PlusCircle, Search, Zap } from 'lucide-react';
 import { useProject } from '../context/ProjectContext';
 import Skeleton from '../components/Skeleton';
 
@@ -25,6 +25,7 @@ const DashboardLayout = () => {
     const navItems = [
         { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
         { name: 'Chat', path: activeRepo ? `/chat/${activeRepo.id}` : '/dashboard', icon: MessageSquare, disabled: !activeRepo },
+        { name: 'How It Works', path: '/how-it-works', icon: Zap },
     ];
 
     return (
@@ -76,7 +77,8 @@ const DashboardLayout = () => {
                                     className={`flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-all ${activeRepo?.id === repo.id
                                         ? 'bg-secondary text-foreground border border-border'
                                         : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
-                                        }`}
+                                        } ${repo.status !== 'READY' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    onClick={(e) => repo.status !== 'READY' && e.preventDefault()}
                                 >
                                     <div className={`w-2 h-2 rounded-full ${repo.status === 'READY' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' :
                                         repo.status === 'PENDING' ? 'bg-yellow-500/50' :

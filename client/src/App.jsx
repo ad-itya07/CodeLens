@@ -9,6 +9,7 @@ import RegisterPage from './pages/RegisterPage';
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import ProjectChat from './pages/ProjectChat';
+import HowItWorks from './pages/HowItWorks';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
             <Route element={<DashboardLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/chat/:id" element={<ProjectChat />} />
+              <Route path="/how-it-works" element={<HowItWorks />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />
