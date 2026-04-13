@@ -103,31 +103,34 @@ const Dashboard = () => {
                     repos.map((repo) => (
                         <Link
                             key={repo.id}
-                            to={`/chat/${repo.id}`}
-                            className="group bg-card border border-border p-6 rounded-3xl hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/5 flex flex-col justify-between"
+                            to={repo.status === 'READY' ? `/chat/${repo.id}` : '#'}
+                            onClick={(e) => repo.status !== 'READY' && e.preventDefault()}
+                            className={`group bg-card border border-border p-6 rounded-3xl transition-all duration-300 flex flex-col justify-between ${repo.status === 'READY' ? 'hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/5 cursor-pointer' : 'opacity-60 cursor-not-allowed'}`}
                         >
                             <div className="space-y-4">
                                 <div className="flex justify-between items-start">
-                                    <div className="bg-secondary p-3 rounded-2xl group-hover:bg-primary/10 transition-colors">
-                                        <Github className="w-6 h-6 text-muted-foreground group-hover:text-primary" />
+                                    <div className={`p-3 rounded-2xl transition-colors ${repo.status === 'READY' ? 'bg-secondary group-hover:bg-primary/10' : 'bg-secondary/50'}`}>
+                                        <Github className={`w-6 h-6 ${repo.status === 'READY' ? 'text-muted-foreground group-hover:text-primary' : 'text-muted-foreground/50'}`} />
                                     </div>
                                     {getStatusIcon(repo.status)}
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-bold truncate">{repo.repoUrl?.split('/').pop() || 'Unnamed Repo'}</h3>
+                                    <h3 className={`text-xl font-bold truncate ${repo.status === 'READY' ? 'group-hover:text-primary transition-colors' : 'text-muted-foreground'}`}>
+                                        {repo.repoUrl?.split('/').pop() || 'Unnamed Repo'}
+                                    </h3>
                                     <p className="text-sm text-muted-foreground truncate mt-1">{repo.repoUrl}</p>
                                 </div>
                             </div>
 
                             <div className="mt-6 pt-6 border-t border-border flex items-center justify-between">
-                                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                                <span className={`text-[10px] font-bold uppercase tracking-widest ${repo.status === 'READY' ? 'text-primary' : 'text-muted-foreground'}`}>
                                     {repo.status || 'Pending'}
                                 </span>
-                                {/* <a href={repo.repoUrl} target="_blank" rel="noopener noreferrer">
-                                    <div className="flex items-center gap-1 text-primary text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-                                        Explore <ExternalLink className="w-4 h-4" />
-                                    </div>
-                                </a> */}
+                                {repo.status !== 'READY' && (
+                                    <span className="text-[10px] font-medium text-muted-foreground italic">
+                                        {repo.status === 'FAILED' ? 'Indexing failed' : 'Indexing...'}
+                                    </span>
+                                )}
                             </div>
                         </Link>
                     ))
