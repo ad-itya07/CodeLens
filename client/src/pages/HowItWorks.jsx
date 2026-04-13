@@ -9,6 +9,7 @@ const HowItWorks = () => {
             desc: "When you add a GitHub URL, CodeLens securely clones the repository to a temporary environment. We ensure that only the necessary source files are processed, respecting your project's privacy and security.",
             icon: <Github className="w-8 h-8" />,
             color: "text-blue-500",
+            barColor: "bg-blue-500",
             bg: "bg-blue-500/10",
             details: ["Secure SSH/HTTPS cloning", "Temporary processing environment", "Automatic cleanup"]
         },
@@ -17,6 +18,7 @@ const HowItWorks = () => {
             desc: "After cloning, we use Abstract Syntax Trees (AST) to parse your code. Instead of simple text splitting, we intelligently identify functions, classes, variables, and their relationships to maintain semantic context.",
             icon: <Code className="w-8 h-8" />,
             color: "text-green-500",
+            barColor: "bg-green-500",
             bg: "bg-green-500/10",
             details: ["Language-aware parsing", "Entity extraction", "Relationship mapping"]
         },
@@ -25,6 +27,7 @@ const HowItWorks = () => {
             desc: "Every code entity is transformed into a high-dimensional vector embedding using the Xenova library. This allows us to represent the 'meaning' of your code in a mathematical space that AI can understand.",
             icon: <Zap className="w-8 h-8" />,
             color: "text-yellow-500",
+            barColor: "bg-yellow-500",
             bg: "bg-yellow-500/10",
             details: ["Xenova transformers", "Semantic vector space", "Efficient indexing"]
         },
@@ -33,6 +36,7 @@ const HowItWorks = () => {
             desc: "When you ask a question, we generate a vector embedding for your query using the same model. This ensures that your natural language question can be compared directly with your code's embeddings.",
             icon: <Search className="w-8 h-8" />,
             color: "text-purple-500",
+            barColor: "bg-purple-500",
             bg: "bg-purple-500/10",
             details: ["Real-time query processing", "Semantic matching", "Multi-language support"]
         },
@@ -41,6 +45,7 @@ const HowItWorks = () => {
             desc: "We use a sophisticated scoring system to calculate the similarity between your query and the code entities. We rank the results to find the most relevant snippets that could answer your question.",
             icon: <Sparkles className="w-8 h-8" />,
             color: "text-pink-500",
+            barColor: "bg-pink-500",
             bg: "bg-pink-500/10",
             details: ["Cosine similarity", "Contextual ranking", "Top-K retrieval"]
         },
@@ -49,6 +54,7 @@ const HowItWorks = () => {
             desc: "The top 3-7 most relevant code entities are selected and formatted into a concise context block. This ensures the LLM has exactly the information it needs without being overwhelmed by irrelevant code.",
             icon: <Layers className="w-8 h-8" />,
             color: "text-orange-500",
+            barColor: "bg-orange-500",
             bg: "bg-orange-500/10",
             details: ["Dynamic context window", "Snippet formatting", "Token optimization"]
         },
@@ -57,6 +63,7 @@ const HowItWorks = () => {
             desc: "Finally, the context and your query are passed to a Large Language Model (LLM). The AI uses the provided code snippets to generate a clean, accurate, and easy-to-understand explanation.",
             icon: <Bot className="w-8 h-8" />,
             color: "text-cyan-500",
+            barColor: "bg-cyan-500",
             bg: "bg-cyan-500/10",
             details: ["Context-aware generation", "Markdown formatting", "Source referencing"]
         }
@@ -89,13 +96,18 @@ const HowItWorks = () => {
                 {steps.map((step, i) => (
                     <motion.div
                         key={i}
-                        initial={{ opacity: 0, x: i % 2 === 0 ? -50 : 50 }}
-                        whileInView={{ opacity: 1, x: 0 }}
+                        initial="initial"
+                        whileHover="hover"
                         viewport={{ once: true, margin: "-100px" }}
                         className={`flex flex-col lg:flex-row items-center gap-8 ${i % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}
                     >
                         {/* Content */}
-                        <div className={`flex-1 space-y-6 ${i % 2 === 0 ? 'lg:text-right' : 'lg:text-left'}`}>
+                        <motion.div
+                            initial={{ opacity: 0, x: i % 2 === 0 ? -50 : 50 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            className={`flex-1 space-y-6 ${i % 2 === 0 ? 'lg:text-right' : 'lg:text-left'}`}
+                        >
                             <div className={`inline-flex items-center justify-center p-4 rounded-3xl ${step.bg} ${step.color} shadow-lg shadow-current/5`}>
                                 {step.icon}
                             </div>
@@ -112,7 +124,7 @@ const HowItWorks = () => {
                                     </span>
                                 ))}
                             </div>
-                        </div>
+                        </motion.div>
 
                         {/* Center Point */}
                         <div className="relative z-10 hidden lg:flex items-center justify-center w-12 h-12 rounded-full bg-background border-4 border-border">
@@ -130,11 +142,12 @@ const HowItWorks = () => {
                             <div className="absolute bottom-6 left-6 right-6">
                                 <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
                                     <motion.div
-                                        initial={{ width: 0 }}
-                                        whileInView={{ width: "100%" }}
-                                        viewport={{ once: true }}
-                                        transition={{ duration: 1, delay: 0.5 }}
-                                        className={`h-full ${step.color.replace('text-', 'bg-')}`}
+                                        variants={{
+                                            initial: { width: 0 },
+                                            hover: { width: "100%" }
+                                        }}
+                                        transition={{ duration: 1, ease: "easeInOut" }}
+                                        className={`h-full ${step.barColor}`}
                                     />
                                 </div>
                             </div>
