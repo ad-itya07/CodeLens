@@ -27,6 +27,15 @@ export async function handleRepo(req, res) {
 
         let project;
         await withRetry(async () => {
+            const doesExist = await prisma.project.findFirst({
+                where: {
+                    userId,
+                    repoUrl: githubUrl,
+                }
+            });
+            if (doesExist && doesExist.status !== "FAILED") {
+                return res.status(200).json({ message: "Project already exists!" });
+            }
             project = await prisma.project.create({
                 data: {
                     userId,

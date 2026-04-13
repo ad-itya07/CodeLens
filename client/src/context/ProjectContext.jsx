@@ -51,6 +51,12 @@ export const ProjectProvider = ({ children }) => {
         setLoading(true);
         try {
             const response = await repoService.addRepo({ githubUrl });
+
+            if (response.data.message === "Project already exists!") {
+                toast.error('This repository has already been added');
+                return null;
+            }
+
             const newRepo = {
                 id: response.data.projectId,
                 repoUrl: githubUrl,
