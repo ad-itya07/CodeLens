@@ -71,7 +71,7 @@ const LandingPage = () => {
                         className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[1.1]"
                     >
                         Understand your <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-primary bg-[length:200%_auto] animate-gradient">codebase</span> in seconds.
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-primary bg-[length:200%_auto] animate-gradient"> JS/TS codebase</span> in seconds.
                     </motion.h1>
 
                     <motion.p
