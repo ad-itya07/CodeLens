@@ -39,12 +39,12 @@ export async function handleQuery(req, res) {
     const llmResponse = await generateResponse(query, contextText);
     // const llmResponse = { answer: "Yes", status: "ok"};
 
-    if (!llmResponse || !llmResponse.answer) {
-      return res.json({
-        status: "error",
-        explanation: "LLM services are down please try again later"
-      });
-    }
+    // if (!llmResponse || !llmResponse.answer) {
+    //   return res.json({
+    //     status: "error",
+    //     explanation: "LLM services are down please try again later"
+    //   });
+    // }
 
     if (llmResponse.status === "insufficient_context") {
       return res.status(200).json({
