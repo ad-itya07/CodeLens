@@ -15,6 +15,11 @@ const QueryModal = ({ response, onClose, projectId }) => {
     const [isSaved, setIsSaved] = useState(false);
 
     useEffect(() => {
+        if (response?.status === 'error') {
+            setDisplayedAnswer(response.explanation || 'LLM services are down please try again later');
+            setIsTyping(false);
+            return;
+        }
         if (!response?.answer) return;
 
         let index = 0;
@@ -117,7 +122,7 @@ const QueryModal = ({ response, onClose, projectId }) => {
                     </button>
                     <button
                         onClick={handleSave}
-                        disabled={isSaving || isSaved || isTyping}
+                        disabled={isSaving || isSaved || isTyping || response?.status === 'error'}
                         className={`px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition-all ${isSaved
                             ? 'bg-green-500/20 text-green-500 border border-green-500/30'
                             : 'bg-primary text-[#0a0f1a] hover:opacity-90 shadow-lg shadow-primary/20'

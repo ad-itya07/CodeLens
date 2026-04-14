@@ -17,7 +17,8 @@ export function handleMError(err) {
   // Model overloaded / service issue
   if (
     message.includes("overloaded") ||
-    message.includes("unavailable")
+    message.includes("unavailable") ||
+    message.includes("high demand")
   ) {
     return {
       status: "llm_error",

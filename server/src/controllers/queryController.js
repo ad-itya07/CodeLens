@@ -42,7 +42,7 @@ export async function handleQuery(req, res) {
     if (!llmResponse || !llmResponse.answer) {
       return res.json({
         status: "error",
-        explanation: "LLM failed to return valid response"
+        explanation: "LLM services are down please try again later"
       });
     }
 
@@ -53,7 +53,12 @@ export async function handleQuery(req, res) {
         fallback: true
       })
     }
-    if (llmResponse.status === "llm_error") return res.status(500).json(llmResponse.answer);
+    if (llmResponse.status === "llm_error") {
+      return res.json({
+        status: "error",
+        explanation: llmResponse.explanation
+      });
+    }
 
     return res.status(200).json({
       answer: llmResponse.answer,

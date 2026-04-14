@@ -33,8 +33,7 @@ const ProjectChat = () => {
         if (res) {
             setCurrentResponse({
                 query: query,
-                answer: res.answer,
-                codeResults: res.codeResults
+                ...res
             });
             setShowModal(true);
             setQuery('');
