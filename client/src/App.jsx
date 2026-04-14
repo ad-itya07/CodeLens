@@ -33,7 +33,7 @@ function App() {
             },
           }} />
           <Routes>
-            <Route path="/" element={<LandingPage />} />
+            <Route path="/" element={<AuthRedirect><LandingPage /></AuthRedirect>} />
             <Route path="/login" element={<AuthRedirect><LoginPage /></AuthRedirect>} />
             <Route path="/register" element={<AuthRedirect><RegisterPage /></AuthRedirect>} />
 
