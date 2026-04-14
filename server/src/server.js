@@ -32,6 +32,6 @@ app.use((req, res) => {
     res.sendFile(path.join(clientDistPath, 'index.html'));
 });
 
-app.listen(PORT, () => {
-    console.log("Server is up and running!");
+app.listen(PORT, '0.0.0.0',() => {
+    console.log(`Server is up and running on port ${PORT}`);
 });
