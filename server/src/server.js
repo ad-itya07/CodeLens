@@ -4,6 +4,11 @@ import cors from "cors";
 import { router as QueryRoutes } from "./routes/queryRoutes.js"
 import { router as RepoRoutes } from "./routes/repoRoutes.js"
 import { router as AuthRoutes } from "./routes/authRoutes.js"
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT || 3000;
 
@@ -17,6 +22,16 @@ app.use("/api/auth", AuthRoutes);
 
 app.get("/health", (req, res) => {
     res.send("Server is running!")
+});
+
+// Serve static files from the React app
+const clientDistPath = path.join(__dirname, '../../client/dist');
+app.use(express.static(clientDistPath));
+
+// The "catchall" handler: for any request that doesn't
+// match one above, send back React's index.html file.
+app.get('*', (req, res) => {
+    res.sendFile(path.join(clientDistPath, 'index.html'));
 });
 
 app.listen(PORT, () => {
