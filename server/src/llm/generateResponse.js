@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { GoogleGenerativeAI } from "@google/generative-ai"; // Updated import
 import { buildPrompt } from "./promptBuilder.js";
 import { safeParse } from "../utils/llm/safeParse.js";
@@ -9,7 +10,7 @@ export async function generateResponse(query, context) {
   try {
     const prompt = buildPrompt({query, contextText: context});
 
-    const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite-preview" });
+    const model = genAI.getGenerativeModel({ model: `${process.env.GEMINI_MODEL}` });
 
 
     const result = await model.generateContent(prompt);
