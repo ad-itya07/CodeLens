@@ -14,9 +14,9 @@ const SourceCard = ({ source }) => {
     };
 
     return (
-        <div className="bg-secondary/30 border border-border rounded-2xl overflow-hidden transition-all duration-300 hover:border-primary/30">
+        <div className="glass rounded-2xl overflow-hidden transition-all duration-300 hover:border-primary/30">
             <div
-                className="p-4 flex items-center justify-between cursor-pointer hover:bg-secondary/50 transition-colors"
+                className="p-4 flex items-center justify-between cursor-pointer hover:bg-[#161B22]/50 transition-colors"
                 onClick={() => setIsExpanded(!isExpanded)}
             >
                 <div className="flex items-center gap-3 min-w-0">
@@ -24,42 +24,48 @@ const SourceCard = ({ source }) => {
                         <Code className="w-4 h-4 text-primary" />
                     </div>
                     <div className="min-w-0">
-                        <p className="text-sm font-bold truncate">{source.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{source.filePath}</p>
+                        <p className="text-sm font-bold truncate text-[#E6EDF3]">{source.name}</p>
+                        <p className="text-xs text-[#8B949E] truncate">{source.filePath}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
                     {source.score && (
-                        <span className="text-[10px] font-bold bg-primary/20 text-primary px-2 py-0.5 rounded-full uppercase tracking-wider">
+                        <span className="text-[10px] font-bold bg-primary/15 text-primary px-2 py-0.5 rounded-full uppercase tracking-wider">
                             Score: {source.score}
                         </span>
                     )}
-                    {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                    {isExpanded ? <ChevronUp className="w-4 h-4 text-[#8B949E]" /> : <ChevronDown className="w-4 h-4 text-[#8B949E]" />}
                 </div>
             </div>
 
             {isExpanded && (
-                <div className="border-t border-border animate-in slide-in-from-top-2 duration-200">
-                    <div className="bg-black/40 p-4 relative group">
-                        <div className="absolute right-6 top-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="border-t border-[#21262D]">
+                    <div className="relative group" style={{
+                        background: '#0D1117',
+                        borderLeft: '3px solid #2F81F7',
+                    }}>
+                        {/* Language tag + copy button */}
+                        <div className="flex items-center justify-between px-4 py-2 border-b border-[#21262D]">
+                            <span className="text-[10px] font-bold text-[#8B949E] uppercase tracking-widest">
+                                {source.type || 'code'}
+                            </span>
                             <button
                                 onClick={handleCopy}
-                                className="p-2 bg-secondary/80 hover:bg-secondary rounded-lg border border-border transition-all"
+                                className="p-1.5 hover:bg-[#161B22] rounded-lg border border-[#21262D] transition-all opacity-0 group-hover:opacity-100"
                             >
-                                {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4 text-muted-foreground" />}
+                                {copied ? <Check className="w-3.5 h-3.5 text-[#3DDC84]" /> : <Copy className="w-3.5 h-3.5 text-[#8B949E]" />}
                             </button>
                         </div>
-                        <pre className="text-xs font-mono overflow-x-auto custom-scrollbar leading-relaxed text-blue-100/80">
-                            <code>{source.code}</code>
-                        </pre>
+                        <div className="p-4">
+                            <pre className="text-xs font-mono overflow-x-auto custom-scrollbar leading-relaxed text-[#E6EDF3]/80">
+                                <code>{source.code}</code>
+                            </pre>
+                        </div>
                     </div>
-                    <div className="px-4 py-3 bg-secondary/20 flex items-center justify-between">
-                        <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest">
+                    <div className="px-4 py-3 bg-[#161B22]/30 flex items-center justify-between">
+                        <span className="text-[10px] text-[#8B949E] font-medium uppercase tracking-widest">
                             Type: {source.type}
                         </span>
-                        <button className="text-[10px] text-primary font-bold hover:underline flex items-center gap-1 uppercase tracking-widest">
-                            View Full File <ExternalLink className="w-3 h-3" />
-                        </button>
                     </div>
                 </div>
             )}
