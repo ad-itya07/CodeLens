@@ -20,7 +20,7 @@ const worker = new Worker(
     try {
       await prisma.project.update({
         where: { id: projectId },
-        data: { status: "PARSING" },
+        data: { status: "PARSING", currentStep: "Cloning repository" },
       });
 
       if (!fs.existsSync("repos")) {
@@ -28,6 +28,11 @@ const worker = new Worker(
       }
 
       await cloneRepo(githubUrl, repoPath);
+
+      await prisma.project.update({
+        where: { id: projectId },
+        data: { status: "PARSING", currentStep: "Parsing source files" },
+      });
 
       const entries = parseRepo(repoPath);
 
@@ -37,43 +42,38 @@ const worker = new Worker(
 
       console.log("Updating Entries in DB...");
 
-      for (const entry of entries) {
-        await prisma.entry.create({
-          data: {
-            projectId,
-            name: entry.name,
-            type: entry.type,
-            filePath: entry.filePath,
-            code: entry.code,
-            // meta: entry,
-            nameTokens: entry.nameTokens,
-            normalizedNameTokens: entry.normalizedNameTokens,
-            fileTokens: entry.fileTokens,
-            embeddingText: entry.embeddingText,
-          },
-        });
-      }
-
-      await prisma.project.update({
-        where: { id: projectId },
-        data: { status: "EMBEDDING" },
+      await prisma.entry.createMany({
+        data: entries.map((entry) => ({
+          projectId,
+          name: entry.name,
+          type: entry.type,
+          filePath: entry.filePath,
+          code: entry.code,
+          // meta: entry,
+          nameTokens: entry.nameTokens,
+          normalizedNameTokens: entry.normalizedNameTokens,
+          fileTokens: entry.fileTokens,
+          embeddingText: entry.embeddingText,
+        })),  
       });
 
       // EMBEDDING UPDATE
       console.log("Starting embeddings...");
 
-      await prisma.project.update({
-        where: { id: projectId },
-        data: { status: "EMBEDDING" },
-      });
-
       const dbEntries = await prisma.entry.findMany({
         where: { projectId },
       });
 
-      for (const entry of dbEntries) {
-        if (!entry.embeddingText) continue;
+      const validEntries = dbEntries.filter(entry => entry.embeddingText);
+      const total = validEntries.length;
 
+      await prisma.project.update({
+        where: { id: projectId },
+        data: { status: "EMBEDDING", totalEntities: total,   completedEntities: 0, currentStep: `Generating embeddings (0/${total})`},
+      });
+
+      let completed=0;
+      for (const entry of validEntries) {
         console.log("Processing embeddings for: ", entry.name);
 
         const vector = await embed(entry.embeddingText);
@@ -84,19 +84,29 @@ const worker = new Worker(
           SET embedding = (${JSON.stringify(vector)})::vector
           WHERE id = ${entry.id}
         `;
+
+        // Updating progress
+        completed++;
+        await prisma.project.update({
+          where: { id: projectId },
+          data: {
+            completedEntities: completed,
+            currentStep: `Generating embeddings (${completed}/${total})`
+          }
+        });
       }
 
       console.log("Repo parsing done successfully!");
       await prisma.project.update({
         where: { id: projectId },
-        data: { status: "READY" },
+        data: { status: "READY", currentStep: "Ready for queries" },
       });
     } catch (err) {
       console.error(err);
 
       await prisma.project.update({
         where: { id: projectId },
-        data: { status: "FAILED" },
+        data: { status: "FAILED", currentStep: "Failed to process repository" },
       });
 
       throw err;

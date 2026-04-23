@@ -29,6 +29,11 @@ model Project {
   userId    String
   repoUrl   String
   status    ProjectStatus @default(PENDING)
+
+  totalEntities      Int @default(0)
+  completedEntities  Int @default(0)
+  currentStep        String?
+
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
   entries   Entry[]

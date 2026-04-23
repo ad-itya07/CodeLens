@@ -109,6 +109,12 @@ export const ProjectProvider = ({ children }) => {
         }
     };
 
+    const updateRepo = (repoId, statusData) => {
+        setRepos((prev) => prev.map((repo) =>
+            repo.id === repoId ? { ...repo, ...statusData } : repo
+        ));
+    };
+
     return (
         <ProjectContext.Provider
             value={{
@@ -122,6 +128,7 @@ export const ProjectProvider = ({ children }) => {
                 askQuestion,
                 saveQuery,
                 fetchRepos,
+                updateRepo,
             }}
         >
             {children}
