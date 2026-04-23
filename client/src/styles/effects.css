@@ -1,0 +1,186 @@
+/* ============================================
+   CodeLens — Neural Dark Effects
+   ============================================ */
+
+/* --- Glassmorphism --- */
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.glass-elevated {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* --- Shimmer (top-edge hover effect for cards) --- */
+@keyframes shimmer-slide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.shimmer-hover {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-hover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #2F81F7, transparent);
+  transform: translateX(-100%);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.shimmer-hover:hover::before {
+  animation: shimmer-slide 0.8s ease forwards;
+}
+
+/* --- Gradient Shift (button shimmer) --- */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.gradient-btn {
+  background: linear-gradient(135deg, #2F81F7, #A371F7, #2F81F7);
+  background-size: 200% 200%;
+  transition: box-shadow 0.3s ease, transform 0.15s ease;
+}
+
+.gradient-btn:hover {
+  animation: gradient-shift 2s ease infinite;
+  box-shadow: 0 0 20px rgba(47, 129, 247, 0.3);
+}
+
+/* --- Status Pulse (green dot for READY repos) --- */
+@keyframes status-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.6);
+    opacity: 0.5;
+  }
+}
+
+.status-pulse {
+  animation: status-pulse 2s ease-in-out infinite;
+}
+
+/* --- Border Beam (rotating gradient border for indexing cards) --- */
+@keyframes border-beam {
+  0% { --angle: 0deg; }
+  100% { --angle: 360deg; }
+}
+
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.border-beam {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.border-beam::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: conic-gradient(from var(--angle), transparent 60%, #2F81F7 80%, #3DDC84 90%, transparent 100%);
+  animation: border-beam 3s linear infinite;
+  z-index: -1;
+}
+
+.border-beam::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  background: #0D1117;
+  z-index: -1;
+}
+
+/* --- Glow effects for stat numbers --- */
+.glow-blue {
+  text-shadow: 0 0 20px rgba(47, 129, 247, 0.3), 0 0 40px rgba(47, 129, 247, 0.1);
+}
+
+.glow-green {
+  text-shadow: 0 0 20px rgba(61, 220, 132, 0.3), 0 0 40px rgba(61, 220, 132, 0.1);
+}
+
+.glow-violet {
+  text-shadow: 0 0 20px rgba(163, 113, 247, 0.3), 0 0 40px rgba(163, 113, 247, 0.1);
+}
+
+/* --- Active nav item left glow --- */
+.nav-active-glow {
+  border-left: 3px solid #2F81F7;
+  box-shadow: inset 3px 0 8px -3px rgba(47, 129, 247, 0.3);
+}
+
+/* --- Avatar gradient ring --- */
+.avatar-ring {
+  background: linear-gradient(135deg, #2F81F7, #A371F7);
+  padding: 2px;
+  border-radius: 9999px;
+}
+
+.avatar-ring > * {
+  border-radius: 9999px;
+}
+
+/* --- Focus ring override --- */
+*:focus-visible {
+  outline: 2px solid rgba(47, 129, 247, 0.5);
+  outline-offset: 2px;
+}
+
+/* --- Step connector animation --- */
+@keyframes fill-line {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+.step-connector-fill {
+  animation: fill-line 1s ease-out forwards;
+}
+
+/* --- Typing dots bounce --- */
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-6px); }
+}
+
+/* --- Reduced Motion --- */
+@media (prefers-reduced-motion: reduce) {
+  .shimmer-hover::before,
+  .gradient-btn:hover,
+  .status-pulse,
+  .border-beam::before,
+  .step-connector-fill {
+    animation: none !important;
+  }
+
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

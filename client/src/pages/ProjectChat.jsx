@@ -1,11 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useProject } from '../context/ProjectContext';
-import { Github, ExternalLink, Search, Sparkles, Loader2, ArrowLeft, MoreVertical, MessageSquare, Save, X, ChevronRight } from 'lucide-react';
+import { Github, ExternalLink, Search, Sparkles, Loader2, ArrowLeft, MessageSquare, Save, X, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import QueryModal from '../components/QueryModal';
 import SavedQueriesCard from '../components/SavedQueriesCard';
 import QuerySlider from '../components/QuerySlider';
+
+const Bot = ({ className }) => (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2" /><path d="M20 14h2" /><path d="M15 13v2" /><path d="M9 13v2" />
+    </svg>
+);
 
 const ProjectChat = () => {
     const { id } = useParams();
@@ -16,6 +22,7 @@ const ProjectChat = () => {
     const [currentResponse, setCurrentResponse] = useState(null);
     const [showSlider, setShowSlider] = useState(false);
     const [selectedSavedQuery, setSelectedSavedQuery] = useState(null);
+    const [inputFocused, setInputFocused] = useState(false);
 
     useEffect(() => {
         const repo = repos.find(r => String(r.id) === String(id));
@@ -54,14 +61,14 @@ const ProjectChat = () => {
     }
 
     return (
-        <div className="flex-1 flex flex-col h-full bg-[#0a0f1a] text-white overflow-hidden relative">
+        <div className="flex-1 flex flex-col h-full bg-background text-foreground overflow-hidden relative">
             {/* Header */}
-            <header className="h-16 border-b border-white/10 px-8 flex items-center justify-between bg-[#0a0f1a]/80 backdrop-blur-md z-10">
+            <header className="h-16 border-b border-[#21262D] px-8 flex items-center justify-between bg-[#0D1117]/80 backdrop-blur-md z-10">
                 <div className="flex items-center gap-4">
-                    <Link to="/dashboard" className="p-2 hover:bg-white/5 rounded-lg transition-colors">
-                        <ArrowLeft className="w-5 h-5 text-gray-400" />
+                    <Link to="/dashboard" className="p-2 hover:bg-[#161B22] rounded-lg transition-colors">
+                        <ArrowLeft className="w-5 h-5 text-[#8B949E]" />
                     </Link>
-                    <h2 className="font-bold text-lg tracking-tight">{activeRepo.repoUrl.split('/').pop()}</h2>
+                    <h2 className="font-bold text-lg tracking-tight text-[#E6EDF3]">{activeRepo.repoUrl.split('/').pop()}</h2>
                 </div>
             </header>
 
@@ -70,13 +77,17 @@ const ProjectChat = () => {
                 <div className="max-w-7xl mx-auto space-y-6">
 
                     {/* Top Card: Linked Repository */}
-                    <div className="bg-[#0d1526] border border-[#1e2d4d] rounded-2xl p-6 flex items-center justify-between group hover:border-primary/50 transition-all duration-300">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="glass shimmer-hover rounded-2xl p-6 flex items-center justify-between group hover:border-primary/40 transition-all duration-300"
+                    >
                         <div className="flex items-center gap-4">
-                            <div className="bg-primary/20 p-3 rounded-xl">
+                            <div className="bg-primary/10 p-3 rounded-xl">
                                 <Github className="w-6 h-6 text-primary" />
                             </div>
                             <div>
-                                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Linked Repository</h3>
+                                <h3 className="text-[10px] font-bold text-[#8B949E] uppercase tracking-widest">Linked Repository</h3>
                                 <a
                                     href={activeRepo.repoUrl}
                                     target="_blank"
@@ -88,16 +99,21 @@ const ProjectChat = () => {
                                 </a>
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Bottom Left: Ask a Question */}
-                        <div className="bg-[#0d1526] border border-[#1e2d4d] rounded-3xl p-8 space-y-6 flex flex-col shadow-2xl">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 }}
+                            className="glass rounded-3xl p-8 space-y-6 flex flex-col"
+                        >
                             <div className="flex items-center gap-3">
-                                <div className="bg-primary/20 p-2.5 rounded-xl">
+                                <div className="bg-primary/10 p-2.5 rounded-xl">
                                     <MessageSquare className="w-6 h-6 text-primary" />
                                 </div>
-                                <h3 className="text-xl font-bold tracking-tight">Ask a Question</h3>
+                                <h3 className="text-xl font-bold tracking-tight text-[#E6EDF3]">Ask a Question</h3>
                             </div>
 
                             <form onSubmit={handleAsk} className="flex-1 flex flex-col space-y-4">
@@ -105,17 +121,24 @@ const ProjectChat = () => {
                                     <textarea
                                         value={query}
                                         onChange={(e) => setQuery(e.target.value)}
+                                        onFocus={() => setInputFocused(true)}
+                                        onBlur={() => setInputFocused(false)}
                                         placeholder="Which file should I edit to change the home page?"
-                                        className="w-full h-full min-h-[200px] bg-[#162033] border border-[#2d3d5c] rounded-2xl p-6 text-gray-200 placeholder:text-gray-500 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all resize-none custom-scrollbar"
+                                        className="w-full h-full min-h-[200px] bg-[#0D1117] border border-[#21262D] rounded-2xl p-6 text-[#E6EDF3] placeholder:text-[#8B949E]/50 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all resize-none custom-scrollbar"
                                     />
-                                    <div className="absolute bottom-4 right-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                                    <div className="absolute bottom-4 right-4 text-[10px] font-bold text-[#8B949E]/50 uppercase tracking-widest">
                                         Powered by AI
                                     </div>
                                 </div>
-                                <button
+                                <motion.button
                                     type="submit"
                                     disabled={!query.trim() || loading}
-                                    className="w-full bg-primary hover:bg-primary/90 text-[#0a0f1a] font-bold py-4 rounded-2xl transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 disabled:opacity-50 group"
+                                    className="w-full gradient-btn text-white font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 group"
+                                    whileHover={{ scale: 1.01 }}
+                                    whileTap={{ scale: 0.99 }}
+                                    style={{
+                                        boxShadow: inputFocused ? '0 0 20px rgba(47,129,247,0.3)' : 'none'
+                                    }}
                                 >
                                     {loading ? (
                                         <Loader2 className="w-6 h-6 animate-spin" />
@@ -125,30 +148,36 @@ const ProjectChat = () => {
                                             Ask CodeLens
                                         </>
                                     )}
-                                </button>
+                                </motion.button>
                             </form>
 
                             <div className="pt-4 space-y-3">
-                                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] ml-1">Suggestions</p>
+                                <p className="text-[10px] font-bold text-[#8B949E]/70 uppercase tracking-[0.2em] ml-1">Suggestions</p>
                                 <div className="flex flex-wrap gap-2">
                                     {["Project structure", "Auth logic", "DB schema"].map(s => (
                                         <button
                                             key={s}
                                             onClick={() => setQuery(prev => prev + (prev ? ' ' : '') + s)}
-                                            className="px-3 py-1.5 bg-[#162033] border border-[#2d3d5c] rounded-lg text-xs font-medium text-gray-400 hover:text-primary hover:border-primary/50 transition-all"
+                                            className="px-3 py-1.5 bg-[#0D1117] border border-[#21262D] rounded-lg text-xs font-medium text-[#8B949E] hover:text-primary hover:border-primary/50 transition-all"
                                         >
                                             {s}
                                         </button>
                                     ))}
                                 </div>
                             </div>
-                        </div>
+                        </motion.div>
 
                         {/* Bottom Right: Saved Queries */}
-                        <SavedQueriesCard
-                            projectId={id}
-                            onOpenQuery={handleOpenSavedQuery}
-                        />
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                        >
+                            <SavedQueriesCard
+                                projectId={id}
+                                onOpenQuery={handleOpenSavedQuery}
+                            />
+                        </motion.div>
                     </div>
                 </div>
             </div>
@@ -176,12 +205,5 @@ const ProjectChat = () => {
         </div>
     );
 };
-
-// Helper Bot icon if not imported
-const Bot = ({ className }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2" /><path d="M20 14h2" /><path d="M15 13v2" /><path d="M9 13v2" />
-    </svg>
-);
 
 export default ProjectChat;

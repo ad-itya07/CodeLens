@@ -1,25 +1,29 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: oklch(0.1 0 0);
-  --color-foreground: oklch(0.98 0 0);
-  --color-card: oklch(0.12 0 0);
-  --color-card-foreground: oklch(0.98 0 0);
-  --color-popover: oklch(0.1 0 0);
-  --color-popover-foreground: oklch(0.98 0 0);
-  --color-primary: oklch(0.6 0.2 250);
-  --color-primary-foreground: oklch(0.98 0 0);
-  --color-secondary: oklch(0.2 0 0);
-  --color-secondary-foreground: oklch(0.98 0 0);
-  --color-muted: oklch(0.2 0 0);
-  --color-muted-foreground: oklch(0.6 0 0);
-  --color-accent: oklch(0.2 0 0);
-  --color-accent-foreground: oklch(0.98 0 0);
-  --color-destructive: oklch(0.6 0.2 20);
-  --color-destructive-foreground: oklch(0.98 0 0);
-  --color-border: oklch(0.2 0 0);
-  --color-input: oklch(0.2 0 0);
-  --color-ring: oklch(0.6 0.2 250);
+  --color-background: #080C10;
+  --color-foreground: #E6EDF3;
+  --color-card: #0D1117;
+  --color-card-foreground: #E6EDF3;
+  --color-popover: #0D1117;
+  --color-popover-foreground: #E6EDF3;
+  --color-primary: #2F81F7;
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: #161B22;
+  --color-secondary-foreground: #E6EDF3;
+  --color-muted: #161B22;
+  --color-muted-foreground: #8B949E;
+  --color-accent: #161B22;
+  --color-accent-foreground: #E6EDF3;
+  --color-destructive: #F85149;
+  --color-destructive-foreground: #FFFFFF;
+  --color-border: #21262D;
+  --color-input: #161B22;
+  --color-ring: #2F81F7;
+  --color-success: #3DDC84;
+  --color-violet: #A371F7;
+  --color-surface: #0D1117;
+  --color-surface-elevated: #161B22;
 }
 
 @layer base {
@@ -27,17 +31,19 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground antialiased;
   }
 }
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   line-height: 1.5;
   font-weight: 400;
+  letter-spacing: -0.02em;
+  font-feature-settings: "cv01", "cv02", "cv03";
 
   color-scheme: dark;
-  background-color: #0a0a0a;
+  background-color: #080C10;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -51,15 +57,28 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background: #080C10;
 }
 
 #root {
   width: 100%;
 }
 
+/* Code / Monospace */
+code, pre, .font-mono {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* Page background depth */
+.bg-page-depth {
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(47, 129, 247, 0.04) 0%, transparent 60%),
+    #080C10;
+}
+
 /* Custom Scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -67,12 +86,41 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: #30363D;
   border-radius: 10px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: #8B949E;
+}
+
+/* Global scrollbar (non-custom-scrollbar elements) */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #30363D;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8B949E;
+}
+
+/* Interactive elements */
+button, a, [role="button"] {
+  cursor: pointer;
+}
+
+/* Transition defaults for interactive elements */
+button, a, input, textarea, select {
+  transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
 }
 
 /* Markdown Content Styling */
@@ -89,15 +137,24 @@ body {
 }
 
 .markdown-content code {
-  @apply bg-white/10 px-1.5 py-0.5 rounded text-primary font-mono text-sm;
+  background: rgba(47, 129, 247, 0.1);
+  color: #79C0FF;
+  @apply px-1.5 py-0.5 rounded text-sm;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .markdown-content pre {
-  @apply bg-black/40 p-4 rounded-xl border border-white/5 overflow-x-auto my-4;
+  background: #0D1117;
+  border-left: 3px solid #2F81F7;
+  @apply p-4 rounded-xl overflow-x-auto my-4;
+  border-top: 1px solid #21262D;
+  border-right: 1px solid #21262D;
+  border-bottom: 1px solid #21262D;
 }
 
 .markdown-content pre code {
-  @apply bg-transparent p-0 text-gray-300;
+  @apply bg-transparent p-0;
+  color: #E6EDF3;
 }
 
 .markdown-content ul, .markdown-content ol {
@@ -113,7 +170,8 @@ body {
 }
 
 .markdown-content h1, .markdown-content h2, .markdown-content h3 {
-  @apply font-bold text-white mt-6 mb-2;
+  @apply font-bold mt-6 mb-2;
+  color: #E6EDF3;
 }
 
 .markdown-content h1 { @apply text-2xl; }
@@ -125,5 +183,7 @@ body {
 }
 
 .markdown-content blockquote {
-  @apply border-l-4 border-primary/30 pl-4 italic text-gray-400 my-4;
+  border-left: 3px solid #2F81F7;
+  @apply pl-4 italic my-4;
+  color: #8B949E;
 }
