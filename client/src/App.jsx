@@ -16,7 +16,7 @@ import { AnimatePresence } from 'framer-motion';
 
 const AuthRedirect = ({ children }) => {
   const { user, loading } = useAuth();
-  if (loading) return null;
+  if (loading) return children;
   if (user) return <Navigate to="/dashboard" replace />;
   return children;
 };
