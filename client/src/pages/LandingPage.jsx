@@ -7,6 +7,7 @@ import image1 from '../assets/image1.webp';
 import image2 from '../assets/image2.webp';
 import image3 from '../assets/image3.webp';
 import image4 from '../assets/image4.webp';
+import TopLoadingBar from '../components/TopLoadingBar';
 
 const LandingPage = () => {
     const [activeSlide, setActiveSlide] = React.useState(0);
@@ -21,6 +22,7 @@ const LandingPage = () => {
 
     return (
         <div className="min-h-screen text-[#E6EDF3] overflow-x-hidden selection:bg-primary/30 selection:text-primary" style={{ background: '#080C10' }}>
+            <TopLoadingBar />
             {/* Navigation */}
             <nav className="fixed top-0 w-full z-50 backdrop-blur-xl border-b border-[#21262D]/50" style={{ background: 'rgba(8,12,16,0.8)' }}>
                 <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">

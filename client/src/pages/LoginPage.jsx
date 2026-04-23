@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Github, Mail, Lock, ArrowRight, Loader2, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
+import TopLoadingBar from '../components/TopLoadingBar';
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
@@ -24,6 +25,7 @@ const LoginPage = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center p-4 relative" style={{ background: '#080C10' }}>
+            <TopLoadingBar />
             {/* Subtle background glow */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full -z-10 opacity-30" style={{
                 background: 'radial-gradient(circle, rgba(47,129,247,0.08) 0%, transparent 70%)'
