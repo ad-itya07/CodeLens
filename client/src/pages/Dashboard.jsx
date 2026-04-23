@@ -315,20 +315,15 @@ const Dashboard = () => {
                                             {!isReady && (
                                                 <div className="flex flex-col items-end">
                                                     <span className="text-[10px] font-medium text-[#8B949E] italic">
-                                                        {isFailed ? 'Indexing failed' :
+                                                        {isFailed ? 'Import failed' :
                                                             repo.status === 'PENDING' ? 'Queued...' : 'Indexing...'}
                                                     </span>
                                                     {isFailed && (
-                                                        <button
-                                                            onClick={(e) => {
-                                                                e.preventDefault();
-                                                                e.stopPropagation();
-                                                                addRepo(repo.repoUrl);
-                                                            }}
+                                                        <span
                                                             className="text-[10px] text-primary hover:underline font-bold mt-1"
                                                         >
-                                                            Retry
-                                                        </button>
+                                                            Check repository access and try again.
+                                                        </span>
                                                     )}
                                                 </div>
                                             )}
@@ -358,7 +353,7 @@ const Dashboard = () => {
                             className="glass-elevated w-full max-w-lg rounded-3xl shadow-2xl p-8 space-y-6"
                         >
                             <div className="space-y-2 text-center">
-                                <h2 className="text-2xl font-bold text-[#E6EDF3]">Add New Repository</h2>
+                                <h2 className="text-2xl font-bold text-[#E6EDF3]">Add a New Public Repository</h2>
                                 <p className="text-[#8B949E]">Enter the GitHub URL of the project you want to index</p>
                             </div>
 

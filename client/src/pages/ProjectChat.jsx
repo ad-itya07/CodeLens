@@ -154,7 +154,7 @@ const ProjectChat = () => {
                             <div className="pt-4 space-y-3">
                                 <p className="text-[10px] font-bold text-[#8B949E]/70 uppercase tracking-[0.2em] ml-1">Suggestions</p>
                                 <div className="flex flex-wrap gap-2">
-                                    {["Project structure", "Auth logic", "DB schema"].map(s => (
+                                    {["Tell me about this repo", "What is the auth logic", "Tell ne about the database schema"].map(s => (
                                         <button
                                             key={s}
                                             onClick={() => setQuery(prev => prev + (prev ? ' ' : '') + s)}
