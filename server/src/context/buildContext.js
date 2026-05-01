@@ -18,7 +18,7 @@ export function buildContext(query, results) {
     [${i + 1}] ${e.name} (${e.type})
     File: ${e.filePath}
 
-    ${e.code.slice(0, 1000)}
+    ${e.code.slice(0, 500)}
     `).join("\n")}
     `;
 
