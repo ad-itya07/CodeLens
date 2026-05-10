@@ -1,11 +1,23 @@
 export function safeParse(text) {
   try {
-    return JSON.parse(text);
+    const parsed = JSON.parse(text);
+
+    if (Array.isArray(parsed.answer)) {
+      parsed.answer = parsed.answer.join("\n");
+    }
+
+    return parsed;
   } catch {
     const match = text.match(/\{[\s\S]*\}/);
     if (match) {
       try {
-        return JSON.parse(match[0]);
+        const parsed = JSON.parse(match[0]);
+
+        if (Array.isArray(parsed.answer)) {
+          parsed.answer = parsed.answer.join("\n");
+        }
+
+        return parsed;
       } catch {}
     }
 
