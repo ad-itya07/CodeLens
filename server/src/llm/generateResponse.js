@@ -1,25 +1,60 @@
 import 'dotenv/config'
-import { GoogleGenerativeAI } from "@google/generative-ai"; // Updated import
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import Groq from "groq-sdk";
 import { buildPrompt } from "./promptBuilder.js";
 import { safeParse } from "../utils/llm/safeParse.js";
 import { handleMError } from "../utils/llm/handleMeError.js";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+async function generateWithGemini(prompt) {
+  const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL });
+  const result = await model.generateContent(prompt);
+  return result.response.text();
+}
+
+async function generateWithGroq(prompt) {
+  const result = await groq.chat.completions.create({
+    model: "llama-3.1-8b-instant",
+    messages: [
+      {
+        role: "system",
+        content: "You are a senior engineer. Always respond with valid JSON only. No markdown, no backticks, just raw JSON."
+      },
+      {
+        role: "user",
+        content: prompt
+      }
+    ],
+  });
+  return result.choices[0].message.content;
+}
 
 export async function generateResponse(query, context) {
   try {
-    const prompt = buildPrompt({query, contextText: context});
+    const prompt = buildPrompt({ query, contextText: context });
 
-    const model = genAI.getGenerativeModel({ model: `${process.env.GEMINI_MODEL}` });
+    let text;
+    try {
+      text = await generateWithGemini(prompt);
+    } catch (geminiErr) {
+      const isGeoBlocked =
+        geminiErr?.status === 400 ||
+        geminiErr?.message?.includes("location is not supported") ||
+        geminiErr?.message?.includes("quota");
 
-
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    const text = response.text();
+      if (isGeoBlocked) {
+        console.warn("Gemini blocked (geo/quota), falling back to Groq...");
+        text = await generateWithGroq(prompt);
+      } else {
+        throw geminiErr;
+      }
+    }
 
     return safeParse(text);
   } catch (err) {
-    console.error("GEMINI Error: ", err);
+    console.error("LLM Error: ", err);
     return handleMError(err);
   }
 }
