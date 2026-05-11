@@ -20,13 +20,17 @@ async function generateWithGroq(prompt) {
     messages: [
       {
         role: "system",
-        content: "You are a senior engineer. Always respond with valid JSON only. No markdown, no backticks, just raw JSON."
+        content: `You are a senior engineer. Always respond with valid JSON only. No markdown, no backticks, just raw JSON.
+        The JSON must have exactly this shape:
+{ "status": "ok", "answer": "your answer as a plain string here" }
+IMPORTANT: "answer" must ALWAYS be a plain string. Never an array. Never an object. Always a string.`
       },
       {
         role: "user",
         content: prompt
       }
     ],
+    response_format: { type: "json_object" }
   });
   return result.choices[0].message.content;
 }
