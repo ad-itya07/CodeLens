@@ -29,21 +29,28 @@ const QueryModal = ({ response, onClose, projectId }) => {
     const [isSaved, setIsSaved] = useState(false);
 
     useEffect(() => {
+        setDisplayedAnswer('');
+        setIsTyping(true);
+
         if (response?.status === 'error') {
-            setDisplayedAnswer(response.explanation || 'LLM services are down please try again later');
+            setDisplayedAnswer(response.answer || response.explanation || 'LLM services are down please try again later');
             setIsTyping(false);
             return;
         }
+
         if (!response?.answer) return;
 
+        const answer = String(response.answer);
         let index = 0;
+
         const interval = setInterval(() => {
-            setDisplayedAnswer((prev) => prev + response.answer[index]);
-            index++;
-            if (index >= response.answer.length) {
+            if (index >= answer.length) {
                 clearInterval(interval);
                 setIsTyping(false);
+                return;
             }
+            setDisplayedAnswer((prev) => prev + answer[index]);
+            index++;
         }, 15);
 
         return () => clearInterval(interval);
