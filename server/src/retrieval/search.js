@@ -6,11 +6,11 @@ function tokenScore(entry, queryTokens) {
   let score = 0;
 
   if (entry.normalizedNameTokens?.some(t => queryTokens.includes(t))) {
-    score += 0.15;
+    score += 0.05;
   }
 
   if (entry.fileTokens?.some(t => queryTokens.includes(t))) {
-    score += 0.1;
+    score += 0.01;
   }
 
   return score;
