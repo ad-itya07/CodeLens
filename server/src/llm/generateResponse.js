@@ -43,17 +43,17 @@ export async function generateResponse(query, context) {
     try {
       text = await generateWithGemini(prompt);
     } catch (geminiErr) {
-      const isGeoBlocked =
-        geminiErr?.status === 400 ||
-        geminiErr?.message?.includes("location is not supported") ||
-        geminiErr?.message?.includes("quota");
+      // const isGeoBlocked =
+      //   geminiErr?.status === 400 ||
+      //   geminiErr?.message?.includes("location is not supported") ||
+      //   geminiErr?.message?.includes("quota");
 
-      if (isGeoBlocked) {
-        console.warn("Gemini blocked (geo/quota), falling back to Groq...");
-        text = await generateWithGroq(prompt);
-      } else {
-        throw geminiErr;
-      }
+      // if (isGeoBlocked) {
+      console.warn("Gemini blocked (geo/quota), falling back to Groq...");
+      text = await generateWithGroq(prompt);
+      // } else {
+      //   throw geminiErr;
+      // }
     }
 
     return safeParse(text);
