@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Navigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, MessageSquare, LogOut, Github, Zap } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, LogOut, Github, Zap, Network } from 'lucide-react';
 import { useProject } from '../context/ProjectContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import Skeleton from '../components/Skeleton';
@@ -27,6 +27,7 @@ const DashboardLayout = () => {
     const navItems = [
         { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
         { name: 'Chat', path: activeRepo ? `/chat/${activeRepo.id}` : '/dashboard', icon: MessageSquare, disabled: !activeRepo },
+        { name: 'CodeGraph', path: '/codegraph', icon: Network },
         { name: 'How It Works', path: '/how-it-works', icon: Zap },
     ];
 

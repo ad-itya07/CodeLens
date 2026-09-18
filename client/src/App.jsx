@@ -10,6 +10,7 @@ import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import ProjectChat from './pages/ProjectChat';
 import HowItWorks from './pages/HowItWorks';
+import CodeGraph from './pages/CodeGraph';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './context/AuthContext';
 import { AnimatePresence } from 'framer-motion';
@@ -37,6 +38,7 @@ const AnimatedRoutes = () => {
         }>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/chat/:id" element={<ProjectChat />} />
+          <Route path="/codegraph" element={<CodeGraph />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
         </Route>
 
