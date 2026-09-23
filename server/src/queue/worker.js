@@ -118,9 +118,14 @@ const worker = new Worker(
   },
   {
     connection: redis,
-    stalledInterval: 60000,
-    lockDuration: 120000,
-    lockRenewTime: 60000,
+    concurrency: 1,
+    drainDelay: 60, // Poll empty queue only every 60s instead of default 5s
+    skipStalledCheck: true, // Eliminate recurring stalled job check polling
+    stalledInterval: 600000,
+    lockDuration: 300000, // 5 minutes lock duration for long-running repo parsing & embeddings
+    lockRenewTime: 150000,
+    removeOnComplete: { count: 100 },
+    removeOnFail: { count: 50 },
   },
 );
 
